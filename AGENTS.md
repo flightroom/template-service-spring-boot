@@ -10,6 +10,7 @@ Java 25 LTS + Spring Boot 4.1 (Spring MVC) backend service, built with Maven, pa
 - `src/main/resources/application.properties`: port, graceful shutdown, actuator exposure, springdoc paths.
 - `src/test/java/...`: `@SpringBootTest` + MockMvc tests.
 - `Dockerfile`: multi-stage, layered jar, non-root user `10001`, healthcheck on `/actuator/health/liveness`.
+- `docker-entrypoint.sh`: attaches the Application Insights Java agent (`-javaagent` in `JAVA_TOOL_OPTIONS`) only when `APPLICATIONINSIGHTS_CONNECTION_STRING` is set, then runs the JVM.
 - `mvnw`, `.mvn/wrapper/`: Maven Wrapper. Always use `./mvnw`, never a system `mvn`.
 
 ## Endpoints the platform relies on

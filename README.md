@@ -36,6 +36,12 @@ Environment variables only (Spring relaxed binding also maps any property, e.g. 
 | `SHUTDOWN_TIMEOUT` | `20s`   | How long graceful shutdown waits for in-flight requests         |
 | `JAVA_TOOL_OPTIONS`| `-XX:MaxRAMPercentage=75` (image) | JVM flags; the heap follows the container memory limit |
 
+## Application Insights
+
+In Flightroom, attach an "Application Insights" resource to the backend. The platform then passes the container `APPLICATIONINSIGHTS_CONNECTION_STRING`, along with `OTEL_SERVICE_NAME` (the backend slug) and `OTEL_RESOURCE_ATTRIBUTES` (e.g. `deployment.environment=prod,service.version=1.4.2`).
+
+The image ships the [Application Insights Java agent](https://learn.microsoft.com/azure/azure-monitor/app/java-standalone-config) 3.7.10. `docker-entrypoint.sh` adds it to `JAVA_TOOL_OPTIONS` only when `APPLICATIONINSIGHTS_CONNECTION_STRING` is set: without it the JVM starts as before and nothing is sent. With it, requests, outgoing calls, logs and JVM metrics are collected with no code change; the cloud role name is `OTEL_SERVICE_NAME` (copied into `APPLICATIONINSIGHTS_ROLE_NAME` unless that is set) and the application version is `service.version` from `OTEL_RESOURCE_ATTRIBUTES`. The agent logs its own diagnostics to stdout (level: `APPLICATIONINSIGHTS_SELF_DIAGNOSTICS_LEVEL`); `APPLICATIONINSIGHTS_CONFIGURATION_CONTENT` replaces its JSON configuration. Outside the image (`./mvnw spring-boot:run`, `java -jar`) the agent is not attached.
+
 ## Test and build
 
 ```bash
